@@ -1,0 +1,13 @@
+card_status:       ACTIVE, INACTIVE, BLOCKED, EXPIRED
+expiry:            future, current_month, past
+amount_vs_daily:   below, equal, above
+amount_vs_monthly: below, equal, above
+amount_vs_balance: below, equal, above
+time_of_day:       day, night
+
+IF [card_status] = "EXPIRED" THEN [expiry] = "past";
+IF [card_status] IN {"INACTIVE", "BLOCKED"} THEN [expiry] <> "past";
+IF [card_status] <> "ACTIVE" THEN [amount_vs_daily] = "below" AND [amount_vs_monthly] = "below" AND [amount_vs_balance] = "below";
+IF [expiry] = "past" THEN [amount_vs_daily] = "below" AND [amount_vs_monthly] = "below" AND [amount_vs_balance] = "below";
+IF [amount_vs_daily] = "above" THEN [amount_vs_monthly] = "below" AND [amount_vs_balance] = "below";
+IF [amount_vs_monthly] = "above" THEN [amount_vs_balance] = "below";

@@ -1,0 +1,8 @@
+bin:             400000, 400004, ~40000, ~40000A
+cardholder_name: typical, len_255, ~empty, ~len_256
+currency_code:   643, 978, ~RUB
+daily_limit:     min_1, typical, ~negative
+monthly_limit:   above_daily, equal_daily, ~negative
+initial_balance: zero, typical, ~negative
+
+IF [daily_limit] = "negative" THEN [monthly_limit] = "above_daily";
