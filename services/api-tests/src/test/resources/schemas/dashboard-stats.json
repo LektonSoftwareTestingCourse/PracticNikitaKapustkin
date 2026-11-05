@@ -1,0 +1,18 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "DashboardStats (docs/api/openapi.yaml)",
+  "type": "object",
+  "required": ["totalTransactions", "approvedCount", "declinedCount", "approvalRate", "totalAmount",
+    "averageAmount", "avgProcessingTimeMs", "transactionsPerMinute"],
+  "properties": {
+    "totalTransactions": {"type": "integer", "minimum": 0},
+    "approvedCount": {"type": "integer", "minimum": 0},
+    "declinedCount": {"type": "integer", "minimum": 0},
+    "approvalRate": {"type": "number", "minimum": 0, "maximum": 1},
+    "totalAmount": {"type": "number", "minimum": 0},
+    "averageAmount": {"type": "number", "minimum": 0},
+    "avgProcessingTimeMs": {"type": "number", "minimum": 0},
+    "transactionsPerMinute": {"type": "integer", "minimum": 0}
+  },
+  "additionalProperties": false
+}

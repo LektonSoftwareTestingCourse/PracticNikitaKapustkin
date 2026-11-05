@@ -1,0 +1,17 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "GatewayHealth (docs/api/openapi.yaml)",
+  "type": "object",
+  "required": ["status", "service", "version", "services"],
+  "properties": {
+    "status": {"enum": ["ok", "degraded", "down"]},
+    "service": {"type": "string"},
+    "version": {"type": "string"},
+    "services": {
+      "type": "object",
+      "required": ["switch", "authorization", "cardManagement", "logger"],
+      "additionalProperties": {"enum": ["ok", "unavailable", "degraded"]}
+    }
+  },
+  "additionalProperties": false
+}

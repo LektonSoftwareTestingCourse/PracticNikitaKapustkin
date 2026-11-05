@@ -1,0 +1,17 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "AuthorizationResponse (docs/api/openapi.yaml)",
+  "type": "object",
+  "required": ["mti", "stan", "rrn", "authCode", "responseCode", "status", "declineReason", "processingTimeMs"],
+  "properties": {
+    "mti": {"type": "string", "pattern": "^\\d{4}$"},
+    "stan": {"type": "string"},
+    "rrn": {"type": ["string", "null"], "pattern": "^\\d{12}$"},
+    "authCode": {"type": ["string", "null"], "pattern": "^[A-Z0-9]{6}$"},
+    "responseCode": {"type": "string", "pattern": "^\\d{2}$"},
+    "status": {"enum": ["APPROVED", "DECLINED"]},
+    "declineReason": {"type": ["string", "null"]},
+    "processingTimeMs": {"type": "integer", "minimum": 0}
+  },
+  "additionalProperties": false
+}

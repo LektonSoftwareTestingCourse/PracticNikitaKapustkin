@@ -3,6 +3,9 @@ DOCKER_COMPOSE = docker compose
 MVN = mvn -f services/pom.xml
 NPM_DIR = services/dashboard
 SERVICE ?= gateway
+# Дашборд API-тестам не нужен, а его порт 3000 часто занят
+API_TEST_SERVICES = postgres rabbitmq card-management authorization bin-lookup transaction-logger \
+	switch gateway merchant-acquirer terminal-simulator notification-service
 
 ifeq ($(OS),Windows_NT)
     COPY_CMD = @if not exist .env cmd /c "copy /Y .env.example .env >nul"
@@ -13,7 +16,7 @@ else
 endif
 
 # Специальные цели
-.PHONY: run stop clean build status logs smoke smoke-win test lint
+.PHONY: run stop clean build status logs smoke smoke-win test lint api-tests
 .PHONY: mvn-all mvn-clean mvn-test mvn-lint mvn-service
 .PHONY: npm-install npm-lint npm-test npm-build
 
@@ -28,6 +31,7 @@ help:
 	@echo "  make status        - Containers status"
 	@echo "  make logs          - Show logs (SERVICE=gateway)"
 	@echo "  make smoke         - Run smoke tests"
+	@echo "  make api-tests     - Up stack and run API tests"
 	@echo ""
 	@echo "General"
 	@echo "  make test          - Run all tests (Maven + NPM)"
@@ -78,6 +82,13 @@ smoke:
 test: mvn-test npm-test
 
 lint: mvn-lint npm-lint
+
+# Поднимает стек, ждёт ответов /health и запускает API-тесты (Practice 5)
+api-tests:
+	$(COPY_CMD)
+	$(DOCKER_COMPOSE) up -d --build $(API_TEST_SERVICES)
+	./scripts/wait-for-stack.sh
+	$(MVN) -Papi-tests test
 
 # Maven
 mvn-all:

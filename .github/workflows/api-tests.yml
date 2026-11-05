@@ -1,0 +1,60 @@
+name: API Tests
+
+# Контрактные API-тесты (Practice 5): поднимают стек в docker compose и гоняют
+# модуль services/api-tests. Сборка образов тяжёлая, поэтому триггер уже, чем в ci.yml:
+# ветки practice-5-* и main при изменении сервисов, плюс ручной запуск.
+
+on:
+  push:
+    branches:
+    - 'practice-5-*'
+    - main
+    paths:
+    - 'services/**'
+    - 'docker-compose.yaml'
+    - 'Makefile'
+    - '.github/workflows/api-tests.yml'
+  workflow_dispatch:
+
+concurrency:
+  group: api-tests-${{ github.repository }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  api-tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Normalize GHCR namespace to lowercase
+      run: echo "GHCR_USER=${OWNER,,}" >> "$GITHUB_ENV"
+      env:
+        OWNER: ${{ github.repository_owner }}
+
+    - name: Set up JDK 21
+      uses: actions/setup-java@v5
+      with:
+        java-version: '21'
+        distribution: 'temurin'
+        cache: 'maven'
+
+    - name: Run API tests
+      run: make api-tests
+
+    - name: Show logs on failure
+      if: failure()
+      run: docker compose logs --tail=100
+
+    - name: Upload surefire reports
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: api-test-reports
+        path: services/api-tests/target/surefire-reports/
+
+    - name: Cleanup
+      if: always()
+      run: docker compose down -v

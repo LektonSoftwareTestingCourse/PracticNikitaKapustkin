@@ -1,0 +1,6 @@
+status:     APPROVED, DECLINED, ANY
+merchantId: MERCHA000000001, MERCHB000000001, ANY
+mcc:        5411, 5812, ANY
+issuerId:   ISS001, ISS002, ANY
+dateFrom:   2026-03-11, ANY
+dateTo:     2026-03-12, ANY

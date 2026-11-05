@@ -1,0 +1,11 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "TransactionSearchResponse (docs/api/openapi.yaml)",
+  "type": "object",
+  "required": ["total", "transactions"],
+  "properties": {
+    "total": {"type": "integer", "minimum": 0},
+    "transactions": {"type": "array", "items": {"$ref": "transaction.json"}}
+  },
+  "additionalProperties": false
+}
