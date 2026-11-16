@@ -60,7 +60,6 @@ class AuthServiceImplTest {
     private static final BigDecimal AMOUNT = new BigDecimal("150000");
     private static final BigDecimal BALANCE = new BigDecimal("1000000");
     private static final Instant TRANSMISSION_TIME = Instant.parse("2026-10-21T10:15:30Z");
-    private static final Instant REQUEST_INPUT_TIME = Instant.parse("2026-10-21T10:15:31Z");
     private static final YearMonth TRANSMISSION_MONTH = YearMonth.of(2026, 10);
     private static final YearMonth VALID_EXPIRY = YearMonth.of(2029, 10);
 
@@ -90,7 +89,7 @@ class AuthServiceImplTest {
         when(limitUsageRepository.upsertLimitUsage(any(), any(), any(), any(), any())).thenReturn(1);
 
         // Act
-        AuthorizationResponse response = authService.authorize(request(AMOUNT), REQUEST_INPUT_TIME);
+        AuthorizationResponse response = authService.authorize(request(AMOUNT), Instant.now());
 
         // Assert
         assertThat(response.status()).isEqualTo("APPROVED");
@@ -106,7 +105,7 @@ class AuthServiceImplTest {
         when(limitUsageRepository.upsertLimitUsage(any(), any(), any(), any(), any())).thenReturn(1);
 
         // Act
-        AuthorizationResponse response = authService.authorize(request(AMOUNT), REQUEST_INPUT_TIME);
+        AuthorizationResponse response = authService.authorize(request(AMOUNT), Instant.now());
 
         // Assert
         verify(cardManagementClient).reserve(AMOUNT, response.rrn(), PAN);
@@ -119,7 +118,7 @@ class AuthServiceImplTest {
         when(limitUsageRepository.upsertLimitUsage(any(), any(), any(), any(), any())).thenReturn(1);
 
         // Act
-        authService.authorize(request(AMOUNT), REQUEST_INPUT_TIME);
+        authService.authorize(request(AMOUNT), Instant.now());
 
         // Assert
         verify(eventNotifier).notify(any(AuthServiceAuthorizeEvent.class));
@@ -148,7 +147,7 @@ class AuthServiceImplTest {
         when(cardManagementClient.getCard(PAN)).thenReturn(card(status, VALID_EXPIRY, BALANCE));
 
         // Act
-        AuthorizationResponse response = authService.authorize(request(AMOUNT), REQUEST_INPUT_TIME);
+        AuthorizationResponse response = authService.authorize(request(AMOUNT), Instant.now());
 
         // Assert
         assertThat(response.status()).isEqualTo("DECLINED");
@@ -163,7 +162,7 @@ class AuthServiceImplTest {
         when(cardManagementClient.getCard(PAN)).thenReturn(card(status, VALID_EXPIRY, BALANCE));
 
         // Act
-        authService.authorize(request(AMOUNT), REQUEST_INPUT_TIME);
+        authService.authorize(request(AMOUNT), Instant.now());
 
         // Assert
         verify(limitUsageRepository, never()).upsertLimitUsage(any(), any(), any(), any(), any());
@@ -176,7 +175,7 @@ class AuthServiceImplTest {
         when(cardManagementClient.getCard(PAN)).thenReturn(card(null, VALID_EXPIRY, BALANCE));
 
         // Act
-        AuthorizationResponse response = authService.authorize(request(AMOUNT), REQUEST_INPUT_TIME);
+        AuthorizationResponse response = authService.authorize(request(AMOUNT), Instant.now());
 
         // Assert
         assertThat(response.declineReason()).isEqualTo("UNKNOWN_REASON");
@@ -195,7 +194,7 @@ class AuthServiceImplTest {
         when(limitUsageRepository.upsertLimitUsage(any(), any(), any(), any(), any())).thenReturn(1);
 
         // Act
-        AuthorizationResponse response = authService.authorize(request(AMOUNT, transmission), REQUEST_INPUT_TIME);
+        AuthorizationResponse response = authService.authorize(request(AMOUNT, transmission), Instant.now());
 
         // Assert
         assertThat(response.status()).isEqualTo("APPROVED");
@@ -211,7 +210,7 @@ class AuthServiceImplTest {
         when(cardManagementClient.getCard(PAN)).thenReturn(card(CardModelStatus.ACTIVE, expiry, BALANCE));
 
         // Act
-        AuthorizationResponse response = authService.authorize(request(AMOUNT, transmission), REQUEST_INPUT_TIME);
+        AuthorizationResponse response = authService.authorize(request(AMOUNT, transmission), Instant.now());
 
         // Assert
         assertThat(response.declineReason()).isEqualTo("CARD_EXPIRED");
@@ -226,7 +225,7 @@ class AuthServiceImplTest {
         when(limitUsageRepository.upsertLimitUsage(any(), any(), any(), any(), any())).thenReturn(1);
 
         // Act
-        AuthorizationResponse response = authService.authorize(request(amount), REQUEST_INPUT_TIME);
+        AuthorizationResponse response = authService.authorize(request(amount), Instant.now());
 
         // Assert
         assertThat(response.status()).isEqualTo("APPROVED");
@@ -238,7 +237,7 @@ class AuthServiceImplTest {
         when(cardManagementClient.getCard(PAN)).thenReturn(card(CardModelStatus.ACTIVE, VALID_EXPIRY, AMOUNT));
 
         // Act
-        AuthorizationResponse response = authService.authorize(request(AMOUNT.add(BigDecimal.ONE)), REQUEST_INPUT_TIME);
+        AuthorizationResponse response = authService.authorize(request(AMOUNT.add(BigDecimal.ONE)), Instant.now());
 
         // Assert
         assertThat(response.declineReason()).isEqualTo("INSUFFICIENT_FUNDS");
@@ -252,7 +251,7 @@ class AuthServiceImplTest {
         when(limitUsageRepository.upsertLimitUsage(any(), any(), any(), any(), any())).thenReturn(0);
 
         // Act
-        AuthorizationResponse response = authService.authorize(request(AMOUNT), REQUEST_INPUT_TIME);
+        AuthorizationResponse response = authService.authorize(request(AMOUNT), Instant.now());
 
         // Assert
         assertThat(response.declineReason()).isEqualTo("EXCEEDS_AMOUNT_LIMIT");
@@ -266,7 +265,7 @@ class AuthServiceImplTest {
         when(limitUsageRepository.upsertLimitUsage(any(), any(), any(), any(), any())).thenReturn(0);
 
         // Act
-        authService.authorize(request(AMOUNT), REQUEST_INPUT_TIME);
+        authService.authorize(request(AMOUNT), Instant.now());
 
         // Assert
         verify(cardManagementClient, never()).reserve(any(), any(), any());
@@ -281,7 +280,7 @@ class AuthServiceImplTest {
                 card.dailyLimit(), card.monthlyLimit())).thenReturn(1);
 
         // Act
-        AuthorizationResponse response = authService.authorize(request(AMOUNT), REQUEST_INPUT_TIME);
+        AuthorizationResponse response = authService.authorize(request(AMOUNT), Instant.now());
 
         // Assert
         assertThat(response.status()).isEqualTo("APPROVED");
@@ -301,7 +300,7 @@ class AuthServiceImplTest {
         when(limitUsageRepository.upsertLimitUsage(any(), limitDate.capture(), any(), any(), any())).thenReturn(1);
 
         // Act
-        authService.authorize(request(AMOUNT, transmission), REQUEST_INPUT_TIME);
+        authService.authorize(request(AMOUNT, transmission), Instant.now());
 
         // Assert
         assertThat(limitDate.getValue()).isEqualTo(expectedDate);
@@ -316,7 +315,7 @@ class AuthServiceImplTest {
                 .thenReturn(1);
 
         // Act
-        AuthorizationResponse response = authService.authorize(request(AMOUNT), REQUEST_INPUT_TIME);
+        AuthorizationResponse response = authService.authorize(request(AMOUNT), Instant.now());
 
         // Assert
         assertThat(response.status()).isEqualTo("APPROVED");
@@ -331,7 +330,7 @@ class AuthServiceImplTest {
                 .thenThrow(new IllegalStateException("connection lost"));
 
         // Act
-        AuthorizationResponse response = authService.authorize(request(AMOUNT), REQUEST_INPUT_TIME);
+        AuthorizationResponse response = authService.authorize(request(AMOUNT), Instant.now());
 
         // Assert
         assertThat(response.declineReason()).isEqualTo("DB_UNAVAILABLE");
@@ -346,7 +345,7 @@ class AuthServiceImplTest {
                 .thenThrow(new IllegalStateException("connection lost"));
 
         // Act
-        AuthorizationResponse response = authService.authorize(request(AMOUNT), REQUEST_INPUT_TIME);
+        AuthorizationResponse response = authService.authorize(request(AMOUNT), Instant.now());
 
         // Assert
         assertThat(response.declineReason()).isEqualTo("DB_UNAVAILABLE");
@@ -359,7 +358,7 @@ class AuthServiceImplTest {
         when(cardManagementClient.getCard(PAN)).thenThrow(failure);
 
         // Act
-        AuthorizationResponse response = authService.authorize(request(AMOUNT), REQUEST_INPUT_TIME);
+        AuthorizationResponse response = authService.authorize(request(AMOUNT), Instant.now());
 
         // Assert
         assertThat(response.status()).isEqualTo("DECLINED");
@@ -376,7 +375,7 @@ class AuthServiceImplTest {
         doThrow(failure).when(cardManagementClient).reserve(eq(AMOUNT), any(), eq(PAN));
 
         // Act
-        AuthorizationResponse response = authService.authorize(request(AMOUNT), REQUEST_INPUT_TIME);
+        AuthorizationResponse response = authService.authorize(request(AMOUNT), Instant.now());
 
         // Assert
         assertThat(response.status()).isEqualTo("DECLINED");
@@ -387,7 +386,7 @@ class AuthServiceImplTest {
     @Test
     void shouldApproveRollbackWhenCardManagementReturnsFunds() {
         // Act
-        RollbackResponse response = authService.rollback(rollbackRequest(), REQUEST_INPUT_TIME);
+        RollbackResponse response = authService.rollback(rollbackRequest(), Instant.now());
 
         // Assert
         assertThat(response.status()).isEqualTo("APPROVED");
@@ -402,7 +401,7 @@ class AuthServiceImplTest {
         doThrow(failure).when(cardManagementClient).rollback(any());
 
         // Act
-        RollbackResponse response = authService.rollback(rollbackRequest(), REQUEST_INPUT_TIME);
+        RollbackResponse response = authService.rollback(rollbackRequest(), Instant.now());
 
         // Assert
         assertThat(response.status()).isEqualTo("DECLINED");

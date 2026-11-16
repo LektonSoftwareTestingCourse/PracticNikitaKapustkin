@@ -26,7 +26,7 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 class AuthControllerImplTest {
 
-    private static final Instant REQUEST_TIME = Instant.parse("2026-10-21T10:15:30Z");
+    private static final Instant TRANSMISSION_TIME = Instant.parse("2026-10-21T10:15:30Z");
 
     @Mock
     private AuthServiceImpl authService;
@@ -43,7 +43,7 @@ class AuthControllerImplTest {
         // Arrange
         AuthorizationRequest request = authorizationRequest();
         when(authService.authorize(eq(request), any()))
-                .thenReturn(AuthorizationResponse.approved(request, "612345678901", "A1B2C3", REQUEST_TIME));
+                .thenReturn(AuthorizationResponse.approved(request, "612345678901", "A1B2C3", Instant.now()));
 
         // Act
         ResponseEntity<AuthorizationResponse> response = controller.authorize(request);
@@ -70,7 +70,7 @@ class AuthControllerImplTest {
         // Arrange
         AuthorizationRequest request = authorizationRequest();
         when(authService.authorize(eq(request), any()))
-                .thenReturn(AuthorizationResponse.declined(request, reason, code, REQUEST_TIME));
+                .thenReturn(AuthorizationResponse.declined(request, reason, code, Instant.now()));
 
         // Act
         ResponseEntity<AuthorizationResponse> response = controller.authorize(request);
@@ -84,7 +84,7 @@ class AuthControllerImplTest {
     void shouldRespondOkWhenRollbackIsApproved() {
         // Arrange
         RollbackRequest request = rollbackRequest();
-        when(authService.rollback(eq(request), any())).thenReturn(RollbackResponse.approved(request, REQUEST_TIME));
+        when(authService.rollback(eq(request), any())).thenReturn(RollbackResponse.approved(request, Instant.now()));
 
         // Act
         ResponseEntity<RollbackResponse> response = controller.rollback(request);
@@ -106,7 +106,7 @@ class AuthControllerImplTest {
         // Arrange
         RollbackRequest request = rollbackRequest();
         when(authService.rollback(eq(request), any()))
-                .thenReturn(RollbackResponse.declined(request, reason, code, REQUEST_TIME));
+                .thenReturn(RollbackResponse.declined(request, reason, code, Instant.now()));
 
         // Act
         ResponseEntity<RollbackResponse> response = controller.rollback(request);
@@ -117,7 +117,7 @@ class AuthControllerImplTest {
 
     private static AuthorizationRequest authorizationRequest() {
         return new AuthorizationRequest(
-                "0100", "000001", "4000001234567890", "000000", new BigDecimal("150000"), "643", REQUEST_TIME,
+                "0100", "000001", "4000001234567890", "000000", new BigDecimal("150000"), "643", TRANSMISSION_TIME,
                 "TERM0001", "POS", "MERCH0000000001", "5411", "ACQ001", "ISS001");
     }
 

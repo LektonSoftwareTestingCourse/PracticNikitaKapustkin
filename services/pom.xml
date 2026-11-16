@@ -61,6 +61,36 @@
         </profile>
 
 
+        <profile>
+            <id>integration-tests</id>
+            <modules>
+                <module>common</module>
+                <module>card-management</module>
+                <module>authorization</module>
+                <module>switch</module>
+                <module>transaction-logger</module>
+            </modules>
+            <properties>
+                <testcontainers.version>1.21.4</testcontainers.version>
+            </properties>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-failsafe-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <goals>
+                                    <goal>integration-test</goal>
+                                    <goal>verify</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
         <!-- Индивидуальные профили для каждого сервиса -->
         <profile>
             <id>common</id>
